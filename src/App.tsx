@@ -249,39 +249,35 @@ export default function App() {
           </div>
         </div>
 
-        {/* Right Column: Spectrum Analysis */}
-        <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200 flex flex-col gap-6">
-          <h2 className="text-xl font-semibold text-gray-700 border-b pb-2">Zone 2: Spectrum Analysis</h2>
+        {/* Right Column: Frequency Spectrum */}
+        <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200 flex flex-col gap-4">
+          <h2 className="text-xl font-semibold text-gray-700 border-b pb-2">Zone 2: Frequency Spectrum</h2>
 
-          <div className="flex-grow flex flex-col gap-6">
-            <div className="grid grid-cols-2 gap-4">
-              <div className="bg-gray-50 p-3 rounded-md text-center border border-gray-200">
-                <span className="block text-sm text-gray-500 mb-1">Window Duration (s)</span>
-                <span className="block text-xl font-semibold text-gray-800">{windowDuration.toFixed(3)}</span>
-              </div>
-              <div className="bg-gray-50 p-3 rounded-md text-center border border-gray-200">
+          <div className="flex flex-col gap-4">
+            <div className="flex justify-center">
+              <div className="bg-gray-50 p-3 rounded-md text-center border border-gray-200 w-1/2">
                 <span className="block text-sm text-gray-500 mb-1">Frequency Bin Width (Hz)</span>
                 <span className="block text-xl font-semibold text-gray-800">{binWidth.toFixed(3)}</span>
               </div>
             </div>
           </div>
 
-          <div className="h-64 border border-gray-100 rounded-md p-2 relative bg-white">
+          <div className="flex-grow min-h-64 border border-gray-100 rounded-md p-2 relative bg-white mt-2">
             <ResponsiveContainer width="100%" height="100%">
               <ComposedChart data={spectrumData}>
                 <CartesianGrid strokeDasharray="3 3" opacity={0.5} />
                 <XAxis
                   dataKey="freq"
                   type="number"
-                  domain={[-5, 5]}
-                  ticks={spectrumData.map(d => d.freq)}
+                  domain={[-6, 6]}
+                  ticks={[-6, ...spectrumData.map(d => d.freq), 6]}
                   tickFormatter={(val) => val.toFixed(1)}
                   label={{ value: 'Frequency (Hz)', position: 'insideBottomRight', offset: -5 }}
                   allowDataOverflow
                 />
                 <YAxis
                   label={{ value: 'Magnitude', angle: -90, position: 'insideLeft' }}
-                  domain={[0, 'dataMax']}
+                  domain={[0, (dataMax: number) => Math.ceil(dataMax) + 1]}
                   tickFormatter={(val) => val.toFixed(1)}
                 />
                 <Tooltip
