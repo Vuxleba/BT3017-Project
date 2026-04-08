@@ -1,6 +1,5 @@
 import React, { useState, useMemo } from 'react';
 import { ComposedChart, Line, Scatter, XAxis, YAxis, CartesianGrid, Tooltip, ReferenceLine, ResponsiveContainer, Bar, Cell } from 'recharts';
-import './index.css';
 
 interface WaveConfig {
   enabled: boolean;
@@ -232,6 +231,7 @@ export default function App() {
                   allowDataOverflow
                   axisLine={false}
                   tickLine={false}
+                  tickFormatter={(val) => val.toFixed(2)}
                 />
                 <YAxis domain={[-maxAmp, maxAmp]} label={{ value: 'Amplitude', angle: -90, position: 'insideLeft' }} axisLine={false} />
                 <Tooltip formatter={(val: any) => typeof val === 'number' ? val.toFixed(2) : val} labelFormatter={(val: any) => typeof val === 'number' ? `Time: ${val.toFixed(3)}s` : `Time: ${val}`} />
