@@ -1,6 +1,5 @@
 import React, { useState, useMemo } from 'react';
 import { ComposedChart, Line, Scatter, XAxis, YAxis, CartesianGrid, Tooltip, ReferenceLine, ResponsiveContainer, BarChart, Bar, Cell } from 'recharts';
-import fft from 'fourier-transform';
 import './index.css';
 
 interface WaveConfig {
@@ -16,7 +15,6 @@ interface DashboardState {
   analysisPoint: number;
   wave1: WaveConfig;
   wave2: WaveConfig;
-  wave3: WaveConfig;
 }
 
 const initialState: DashboardState = {
@@ -24,12 +22,11 @@ const initialState: DashboardState = {
   n: 100,
   analysisPoint: 0.00,
   wave1: { enabled: true, type: 'sine', freq: 2, amp: 3 },
-  wave2: { enabled: true, type: 'sine', freq: 4, amp: 1 },
-  wave3: { enabled: false, type: 'cosine', freq: 5, amp: 2 }
+  wave2: { enabled: true, type: 'sine', freq: 4, amp: 1 }
 };
 
 function generateSignal(state: DashboardState) {
-  const { fs, wave1, wave2, wave3 } = state;
+  const { fs, wave1, wave2 } = state;
   const duration = 10; // 10-second timeline
 
   // Continuous signal simulation (high resolution)
@@ -44,9 +41,6 @@ function generateSignal(state: DashboardState) {
     }
     if (wave2.enabled) {
       y += wave2.type === 'sine' ? wave2.amp * Math.sin(2 * Math.PI * wave2.freq * t) : wave2.amp * Math.cos(2 * Math.PI * wave2.freq * t);
-    }
-    if (wave3.enabled) {
-      y += wave3.type === 'sine' ? wave3.amp * Math.sin(2 * Math.PI * wave3.freq * t) : wave3.amp * Math.cos(2 * Math.PI * wave3.freq * t);
     }
 
     continuousData.push({ t, y });
@@ -63,9 +57,6 @@ function generateSignal(state: DashboardState) {
     }
     if (wave2.enabled) {
       y += wave2.type === 'sine' ? wave2.amp * Math.sin(2 * Math.PI * wave2.freq * t) : wave2.amp * Math.cos(2 * Math.PI * wave2.freq * t);
-    }
-    if (wave3.enabled) {
-      y += wave3.type === 'sine' ? wave3.amp * Math.sin(2 * Math.PI * wave3.freq * t) : wave3.amp * Math.cos(2 * Math.PI * wave3.freq * t);
     }
 
     discreteData.push({ t, yDiscrete: y });
@@ -136,9 +127,18 @@ export default function App() {
   const windowDuration = state.n / state.fs;
   const binWidth = state.fs / state.n; // the theoretical one based on N, not padded N
 
+  const handleGlobalChange = (updates: Partial<DashboardState>) => {
+    // If fs or n changes, reset analysisPoint to 0
+    if ('fs' in updates || 'n' in updates) {
+      setState({ ...state, ...updates, analysisPoint: 0 });
+    } else {
+      setState({ ...state, ...updates });
+    }
+  };
+
   return (
     <div className="p-4 bg-gray-50 min-h-screen flex flex-col">
-      <h1 className="text-2xl font-bold mb-6 text-center text-gray-800">Short-Time Fourier Transform (STFT) Demonstration</h1>
+      <h1 className="text-2xl font-bold mb-6 text-center text-gray-800">Fourier Transformation Demonstration</h1>
 
       <div className="flex-grow grid grid-cols-1 lg:grid-cols-2 gap-6 max-w-7xl mx-auto w-full">
         {/* Left Column: Signal Synthesis */}
@@ -155,7 +155,7 @@ export default function App() {
                 <input
                   type="range" min="10" max="100" step="1"
                   value={state.fs}
-                  onChange={(e) => setState({...state, fs: Number(e.target.value)})}
+                  onChange={(e) => handleGlobalChange({fs: Number(e.target.value)})}
                   className="w-full"
                 />
               </div>
@@ -166,14 +166,14 @@ export default function App() {
                 <input
                   type="range" min="10" max="100" step="1"
                   value={state.n}
-                  onChange={(e) => setState({...state, n: Number(e.target.value)})}
+                  onChange={(e) => handleGlobalChange({n: Number(e.target.value)})}
                   className="w-full"
                 />
               </div>
             </div>
 
             {/* Wave Configurations */}
-            {(['wave1', 'wave2', 'wave3'] as const).map((waveKey, idx) => {
+            {(['wave1', 'wave2'] as const).map((waveKey, idx) => {
               const wave = state[waveKey];
               return (
                 <div key={waveKey} className={`p-3 rounded-md border ${wave.enabled ? 'border-blue-200 bg-blue-50' : 'border-gray-200 bg-gray-50'}`}>
@@ -202,7 +202,7 @@ export default function App() {
                     <div>
                       <label className="block text-xs text-gray-500">Freq: {wave.freq} Hz</label>
                       <input
-                        type="range" min="1" max="5" step="0.1"
+                        type="range" min="1" max="5" step="1"
                         value={wave.freq}
                         onChange={(e) => setState({ ...state, [waveKey]: { ...wave, freq: Number(e.target.value) } })}
                         className="w-full"
@@ -212,7 +212,7 @@ export default function App() {
                     <div>
                       <label className="block text-xs text-gray-500">Amp: {wave.amp}</label>
                       <input
-                        type="range" min="1" max="5" step="0.1"
+                        type="range" min="1" max="5" step="1"
                         value={wave.amp}
                         onChange={(e) => setState({ ...state, [waveKey]: { ...wave, amp: Number(e.target.value) } })}
                         className="w-full"
@@ -232,7 +232,7 @@ export default function App() {
                 <XAxis
                   dataKey="t"
                   type="number"
-                  domain={['dataMin', 'dataMax']}
+                  domain={[state.analysisPoint, state.analysisPoint + windowDuration]}
                   tickCount={11}
                   label={{ value: 'Time (s)', position: 'insideBottomRight', offset: -5 }}
                   allowDataOverflow

@@ -2,7 +2,6 @@ import React from "react";
 import { render, screen } from "@testing-library/react";
 import App from "./App";
 
-jest.mock("fourier-transform", () => () => new Float64Array(100));
 global.ResizeObserver = class ResizeObserver {
   observe() {}
   unobserve() {}
@@ -11,6 +10,6 @@ global.ResizeObserver = class ResizeObserver {
 
 test("renders dashboard title", () => {
   render(<App />);
-  const linkElement = screen.getByText(/Short-Time Fourier Transform/i);
+  const linkElement = screen.getByText(/Fourier Transformation Demonstration/i);
   expect(linkElement).toBeInTheDocument();
 });
