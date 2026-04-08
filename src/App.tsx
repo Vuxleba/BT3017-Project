@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import { ComposedChart, Line, Scatter, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Bar, Cell } from 'recharts';
+import { ComposedChart, Line, Scatter, XAxis, YAxis, CartesianGrid, Tooltip, ReferenceLine, ResponsiveContainer, Bar, Cell } from 'recharts';
 import './index.css';
 
 interface WaveConfig {
@@ -118,6 +118,14 @@ export default function App() {
   const windowDuration = state.n / state.fs;
   const binWidth = state.fs / state.n; // the theoretical one based on N, not padded N
 
+  const maxAmp = useMemo(() => {
+    let max = 0;
+    signalData.discreteData.forEach(d => {
+      if (Math.abs(d.yDiscrete) > max) max = Math.abs(d.yDiscrete);
+    });
+    return Math.ceil(max) + 1; // Add padding so points don't hit edges
+  }, [signalData]);
+
   const handleGlobalChange = (updates: Partial<DashboardState>) => {
     setState({ ...state, ...updates });
   };
@@ -223,11 +231,10 @@ export default function App() {
                   label={{ value: 'Time (s)', position: 'insideBottomRight', offset: -5 }}
                   allowDataOverflow
                 />
-                <YAxis
-                  domain={['auto', 'auto']}
-                  label={{ value: 'Amplitude', angle: -90, position: 'insideLeft' }}
-                />
+                <YAxis domain={[-maxAmp, maxAmp]} label={{ value: 'Amplitude', angle: -90, position: 'insideLeft' }} axisLine={false} />
                 <Tooltip formatter={(val: any) => typeof val === 'number' ? val.toFixed(2) : val} labelFormatter={(val: any) => typeof val === 'number' ? `Time: ${val.toFixed(3)}s` : `Time: ${val}`} />
+                <ReferenceLine y={0} stroke="#666" strokeWidth={1} />
+                <ReferenceLine x={0} stroke="#666" strokeWidth={1} />
                 <Line
                   data={signalData.continuousData}
                   type="monotone"
