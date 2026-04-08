@@ -230,6 +230,8 @@ export default function App() {
                   tickCount={11}
                   label={{ value: 'Time (s)', position: 'insideBottomRight', offset: -5 }}
                   allowDataOverflow
+                  axisLine={false}
+                  tickLine={false}
                 />
                 <YAxis domain={[-maxAmp, maxAmp]} label={{ value: 'Amplitude', angle: -90, position: 'insideLeft' }} axisLine={false} />
                 <Tooltip formatter={(val: any) => typeof val === 'number' ? val.toFixed(2) : val} labelFormatter={(val: any) => typeof val === 'number' ? `Time: ${val.toFixed(3)}s` : `Time: ${val}`} />
