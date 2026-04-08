@@ -10,6 +10,6 @@ global.ResizeObserver = class ResizeObserver {
 
 test("renders dashboard title", () => {
   render(<App />);
-  const linkElement = screen.getByText(/Fourier Transformation Demonstration/i);
+  const linkElement = screen.getByText(/Discrete Fourier Transform Demonstration/i);
   expect(linkElement).toBeInTheDocument();
 });
