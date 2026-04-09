@@ -136,7 +136,7 @@ export default function App() {
       <div className="flex-grow grid grid-cols-1 lg:grid-cols-2 gap-6 max-w-7xl mx-auto w-full">
         {/* Left Column: Signal Synthesis */}
         <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200 flex flex-col gap-6">
-          <h2 className="text-xl font-semibold text-gray-700 border-b pb-2">Zone 1: Signal Synthesis</h2>
+          <h2 className="text-xl font-semibold text-gray-700 border-b pb-2 text-center">Signal Synthesis</h2>
 
           <div className="flex-grow flex flex-col gap-4">
             {/* Master Settings */}
@@ -234,7 +234,22 @@ export default function App() {
                   tickFormatter={(val) => val.toFixed(2)}
                 />
                 <YAxis domain={[-maxAmp, maxAmp]} label={{ value: 'Amplitude', angle: -90, position: 'insideLeft' }} axisLine={false} />
-                <Tooltip formatter={(val: any) => typeof val === 'number' ? val.toFixed(2) : val} labelFormatter={(val: any) => typeof val === 'number' ? `Time: ${val.toFixed(3)}s` : `Time: ${val}`} />
+                <Tooltip
+                  cursor={{ strokeDasharray: '3 3' }}
+                  content={({ active, payload, label }) => {
+                    if (active && payload && payload.length) {
+                      return (
+                        <div className="bg-white border border-gray-200 p-2 shadow-sm rounded text-sm">
+                          <p className="font-semibold text-gray-700">{`Time: ${Number(label).toFixed(3)}s`}</p>
+                          <p className="text-gray-600">
+                            Amplitude: {Number(payload[0].value).toFixed(2)}
+                          </p>
+                        </div>
+                      );
+                    }
+                    return null;
+                  }}
+                />
                 <ReferenceLine y={0} stroke="#666" strokeWidth={1} />
                 <ReferenceLine x={0} stroke="#666" strokeWidth={1} />
                 <Line
@@ -260,7 +275,7 @@ export default function App() {
 
         {/* Right Column: Frequency Spectrum */}
         <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200 flex flex-col gap-4">
-          <h2 className="text-xl font-semibold text-gray-700 border-b pb-2">Zone 2: Frequency Spectrum</h2>
+          <h2 className="text-xl font-semibold text-gray-700 border-b pb-2 text-center">Frequency Spectrum</h2>
 
           <div className="flex flex-col gap-4">
             <div className="flex justify-center">
@@ -290,9 +305,18 @@ export default function App() {
                   tickFormatter={(val) => val.toFixed(1)}
                 />
                 <Tooltip
-                  formatter={(val: any) => typeof val === 'number' ? val.toFixed(4) : val}
-                  labelFormatter={(val: any) => typeof val === 'number' ? `${val.toFixed(1)} Hz` : `${val} Hz`}
                   cursor={{fill: 'transparent'}}
+                  content={({ active, payload, label }) => {
+                    if (active && payload && payload.length) {
+                      return (
+                        <div className="bg-white border border-gray-200 p-2 shadow-sm rounded text-sm">
+                          <p className="font-semibold text-gray-700">{`${Number(label).toFixed(1)} Hz`}</p>
+                          <p className="text-gray-600">Magnitude: {Number(payload[0].value).toFixed(4)}</p>
+                        </div>
+                      );
+                    }
+                    return null;
+                  }}
                 />
                 <Bar dataKey="magnitude" fill="#3b82f6" barSize={4} isAnimationActive={false}>
                   {
